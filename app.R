@@ -30,7 +30,7 @@ theme <- bs_theme(
   bg = "#FFFFFF",
   fg = "#2C2C2C",
   success = "#00A878",
-  info = "#5BC0EB",
+  info = "#003D5B",
   warning = "#FFA630",
   danger = "#E63946",
   base_font = font_google("Montserrat"),
