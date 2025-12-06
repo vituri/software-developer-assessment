@@ -82,26 +82,30 @@ ui <- page_sidebar(
 
 # server ----
 server <- function(input, output, session) {
+  rc.catch_country <- reactive({
+    paste("Filtering catch by country...") |> showNotification(duration = 1)
+
+    Sys.sleep(0.5)
+    catch_full %>% filter(country == input$country)
+  }) |>
+    bindCache(input$country)
+
   observe({
-    species <- catch_full %>%
-      filter(country == input$country) %>%
-      pull(species) %>%
+    species <- rc.catch_country()$species %>%
       unique() %>%
       sort()
 
     updateSelectInput(session, "species", choices = species, selected = species[1])
   })
 
-  country_data <- reactive({
-    catch_full %>% filter(country == input$country)
-  })
-
-  filtered_data <- reactive({
-    country_data() %>% filter(species == input$species)
-  })
+  rc.catch_species <- reactive({
+    rc.catch_country() %>%
+      filter(species == input$species)
+  }) |>
+    bindCache(input$country, input$species)
 
   output$map <- renderLeaflet({
-    dat <- filtered_data()
+    dat <- rc.catch_species()
 
     leaflet(dat) %>%
       addTiles() %>%
@@ -119,7 +123,7 @@ server <- function(input, output, session) {
   })
 
   output$total_catch_plot <- renderPlot({
-    filtered_data() %>%
+    rc.catch_species() %>%
       group_by(season) %>%
       summarize(total_catch = sum(catch_kg), .groups = "drop") %>%
       ggplot(aes(x = season, y = total_catch, fill = season)) +
@@ -130,10 +134,11 @@ server <- function(input, output, session) {
         y = "Catch (kg)"
       ) +
       theme_minimal()
-  })
+  }) |>
+    bindCache(input$country, input$species)
 
   output$cpue_plot <- renderPlot({
-    filtered_data() %>%
+    rc.catch_species() %>%
       mutate(cpue = catch_kg / crew_size) %>%
       group_by(date) %>%
       summarize(avg_cpue = mean(cpue), .groups = "drop") %>%
@@ -146,7 +151,8 @@ server <- function(input, output, session) {
         y = "CPUE (kg per crew member)"
       ) +
       theme_minimal()
-  })
+  }) |>
+    bindCache(input$country, input$species)
 }
 
 shinyApp(ui, server)
