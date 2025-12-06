@@ -26,7 +26,7 @@ theme <- bs_theme(
   warning = "#FFA630",
   danger = "#E63946",
   base_font = font_google("Montserrat"),
-  heading_font = font_google("Montserrat"),
+  heading_font = font_google("Open Sans"),
   code_font = font_google("Roboto Mono"),
   "font-size-base" = "1rem",
   "headings-font-weight" = "700",
