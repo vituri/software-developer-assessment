@@ -13,18 +13,63 @@ vessels <- generate_vessel_data()
 catch_full <- catch %>%
   left_join(vessels, by = "vessel_id")
 
+
+# Blue Ventures inspired theme
+theme <- bs_theme(
+  version = 5,
+  primary = "#0098D8",
+  secondary = "#00B4AA",
+  bg = "#FFFFFF",
+  fg = "#2C2C2C",
+  success = "#00A878",
+  info = "#5BC0EB",
+  warning = "#FFA630",
+  danger = "#E63946",
+  base_font = font_google("Montserrat"),
+  heading_font = font_google("Montserrat"),
+  code_font = font_google("Roboto Mono"),
+  "font-size-base" = "1rem",
+  "headings-font-weight" = "700",
+  "body-color" = "#2C2C2C",
+  "link-color" = "#0098D8",
+  "link-hover-color" = "#007AB8",
+  "link-decoration" = "none",
+  "spacer" = "1rem",
+  "border-radius" = "0.375rem",
+  "border-radius-lg" = "0.5rem",
+  "border-radius-sm" = "0.25rem",
+  "btn-font-weight" = "600",
+  "btn-border-radius" = "0.375rem",
+  # navbar
+  "navbar-bg" = "#003D5B",
+  "navbar-fg" = "#FFFFFF",
+  "card-border-color" = "rgba(0, 0, 0, 0.125)",
+  "card-border-radius" = "0.5rem"
+)
+
+# ui ----
 ui <- page_sidebar(
   title = "Fisheries Catch Dashboard",
+  theme = theme,
   sidebar = sidebar(
     selectInput("country", "Country:", choices = sort(unique(catch_full$country))),
     selectInput("species", "Species:", choices = NULL)
   ),
-  leafletOutput("map", height = 350),
-  plotOutput("total_catch_plot"),
-  plotOutput("cpue_plot")
+  card(
+    card_header("Map", class = "bg-dark"),
+    leafletOutput("map", height = 350)
+  ),
+  card(
+    card_header("Total catch", class = "bg-dark"),
+    plotOutput("total_catch_plot")
+  ),
+  card(
+    card_header("Catchssss", class = "bg-dark"),
+    plotOutput("cpue_plot")
+  )
 )
 
-
+# server ----
 server <- function(input, output, session) {
   observe({
     species <- catch_full %>%
