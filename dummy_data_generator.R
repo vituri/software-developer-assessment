@@ -106,19 +106,19 @@ generate_fisheries_data <- function() {
     date = sample(seq(Sys.Date() - 365, Sys.Date(), by = "day"), n_records, replace = TRUE),
     vessel_id = paste0("V-", sample(1001:1030, n_records, replace = TRUE)),
     zone = sample(names(zones), n_records, replace = TRUE, prob = c(rep(0.08, 3), rep(0.12, 4), rep(0.08, 2), rep(0.06, 2)))
-  ) %>%
-    rowwise() %>%
+  ) |>
+    rowwise() |>
     mutate(
       region = zones[[zone]]$region,
       country = zones[[zone]]$country,
       latitude = runif(1, zones[[zone]]$lat_range[1], zones[[zone]]$lat_range[2]),
       longitude = runif(1, zones[[zone]]$lon_range[1], zones[[zone]]$lon_range[2])
-    ) %>%
+    ) |>
     ungroup()
 
   # Assign species based on region preferences
-  data <- data %>%
-    rowwise() %>%
+  data <- data |>
+    rowwise() |>
     mutate(
       species = {
         # Get species that prefer this region
@@ -135,9 +135,9 @@ generate_fisheries_data <- function() {
           }
         }
       }
-    ) %>%
-    ungroup() %>%
-    left_join(species_info, by = "species") %>%
+    ) |>
+    ungroup() |>
+    left_join(species_info, by = "species") |>
     mutate(
       catch_kg = pmax(10, rnorm(n(), avg_catch, sd_catch)),
       water_temp = case_when(
@@ -153,11 +153,11 @@ generate_fisheries_data <- function() {
         month(date) %in% c(6, 7, 8) ~ "Winter",
         TRUE ~ "Spring"
       )
-    ) %>%
+    ) |>
     select(
       date, vessel_id, species, catch_kg, latitude, longitude,
       water_temp, depth_m, region, country, zone, season
-    ) %>%
+    ) |>
     arrange(desc(date))
 
   return(data)

@@ -10,7 +10,7 @@ source("dummy_data_generator.R")
 catch <- generate_fisheries_data()
 vessels <- generate_vessel_data()
 
-catch_full <- catch %>%
+catch_full <- catch |>
   left_join(vessels, by = "vessel_id")
 
 card2 <- function(title = "", ...) {
@@ -86,20 +86,20 @@ server <- function(input, output, session) {
     paste("Filtering catch by country...") |> showNotification(duration = 1)
 
     Sys.sleep(0.5)
-    catch_full %>% filter(country == input$country)
+    catch_full |> filter(country == input$country)
   }) |>
     bindCache(input$country)
 
   observe({
-    species <- rc.catch_country()$species %>%
-      unique() %>%
+    species <- rc.catch_country()$species |>
+      unique() |>
       sort()
 
     updateSelectInput(session, "species", choices = species, selected = species[1])
   })
 
   rc.catch_species <- reactive({
-    rc.catch_country() %>%
+    rc.catch_country() |>
       filter(species == input$species)
   }) |>
     bindCache(input$country, input$species)
@@ -107,8 +107,8 @@ server <- function(input, output, session) {
   output$map <- renderLeaflet({
     dat <- rc.catch_species()
 
-    leaflet(dat) %>%
-      addTiles() %>%
+    leaflet(dat) |>
+      addTiles() |>
       addCircleMarkers(
         ~longitude, ~latitude,
         radius = ~ sqrt(catch_kg) / 5,
@@ -123,9 +123,9 @@ server <- function(input, output, session) {
   })
 
   output$total_catch_plot <- renderPlot({
-    rc.catch_species() %>%
-      group_by(season) %>%
-      summarize(total_catch = sum(catch_kg), .groups = "drop") %>%
+    rc.catch_species() |>
+      group_by(season) |>
+      summarize(total_catch = sum(catch_kg), .groups = "drop") |>
       ggplot(aes(x = season, y = total_catch, fill = season)) +
       geom_col() +
       labs(
@@ -138,10 +138,10 @@ server <- function(input, output, session) {
     bindCache(input$country, input$species)
 
   output$cpue_plot <- renderPlot({
-    rc.catch_species() %>%
-      mutate(cpue = catch_kg / crew_size) %>%
-      group_by(date) %>%
-      summarize(avg_cpue = mean(cpue), .groups = "drop") %>%
+    rc.catch_species() |>
+      mutate(cpue = catch_kg / crew_size) |>
+      group_by(date) |>
+      summarize(avg_cpue = mean(cpue), .groups = "drop") |>
       ggplot(aes(x = date, y = avg_cpue)) +
       geom_line() +
       geom_point() +
