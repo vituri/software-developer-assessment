@@ -13,6 +13,14 @@ vessels <- generate_vessel_data()
 catch_full <- catch %>%
   left_join(vessels, by = "vessel_id")
 
+card2 <- function(title = "", ...) {
+  card(
+    card_header(title, class = "bg-info"),
+    ...,
+    full_screen = TRUE
+  )
+}
+
 
 # Blue Ventures inspired theme
 theme <- bs_theme(
@@ -55,16 +63,19 @@ ui <- page_sidebar(
     selectInput("country", "Country:", choices = sort(unique(catch_full$country))),
     selectInput("species", "Species:", choices = NULL)
   ),
-  card(
-    card_header("Map", class = "bg-dark"),
-    leafletOutput("map", height = 350)
+  layout_columns(
+    col_widths = c(8, 4),
+    card2(
+      "Map",
+      leafletOutput("map")
+    ),
+    card2(
+      "Catch by season",
+      plotOutput("total_catch_plot")
+    )
   ),
-  card(
-    card_header("Total catch", class = "bg-dark"),
-    plotOutput("total_catch_plot")
-  ),
-  card(
-    card_header("Catchssss", class = "bg-dark"),
+  card2(
+    "Total catch",
     plotOutput("cpue_plot")
   )
 )
