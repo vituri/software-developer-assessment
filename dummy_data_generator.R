@@ -86,12 +86,16 @@ generate_fisheries_data <- function() {
 
   # Define species with their typical catch weights and preferred regions
   species_info <- data.frame(
-    species = c("Tuna", "Salmon", "Cod", "Haddock", "Mackerel",
-                "Barramundi", "Snapper", "Prawns", "Rock Lobster", "King George Whiting"),
+    species = c(
+      "Tuna", "Salmon", "Cod", "Haddock", "Mackerel",
+      "Barramundi", "Snapper", "Prawns", "Rock Lobster", "King George Whiting"
+    ),
     avg_catch = c(150, 80, 120, 60, 40, 90, 70, 50, 45, 55),
     sd_catch = c(50, 30, 40, 20, 15, 35, 25, 20, 18, 22),
-    preferred_region = c("North Atlantic", "Pacific Northwest", "North Sea", "North Atlantic", "North Sea",
-                         "Australia", "Australia", "Australia", "Australia", "Australia"),
+    preferred_region = c(
+      "North Atlantic", "Pacific Northwest", "North Sea", "North Atlantic", "North Sea",
+      "Australia", "Australia", "Australia", "Australia", "Australia"
+    ),
     stringsAsFactors = FALSE
   )
 
@@ -150,8 +154,10 @@ generate_fisheries_data <- function() {
         TRUE ~ "Spring"
       )
     ) %>%
-    select(date, vessel_id, species, catch_kg, latitude, longitude,
-           water_temp, depth_m, region, country, zone, season) %>%
+    select(
+      date, vessel_id, species, catch_kg, latitude, longitude,
+      water_temp, depth_m, region, country, zone, season
+    ) %>%
     arrange(desc(date))
 
   return(data)
@@ -168,11 +174,18 @@ generate_vessel_data <- function() {
     capacity_kg = sample(500:2500, length(vessel_ids), replace = TRUE),
     crew_size = ifelse(runif(length(vessel_ids)) < 0.10, NA, sample(5:18, length(vessel_ids), replace = TRUE)),
     registration_year = sample(2000:2023, length(vessel_ids), replace = TRUE),
-    port = sample(c("Halifax", "Boston", "Portland", "St. John's",
-                    "Sydney", "Perth", "Hobart", "Cairns",
-                    "Seattle", "Vancouver", "Aberdeen", "Bergen"),
-                  length(vessel_ids), replace = TRUE),
+    port = sample(
+      c(
+        "Halifax", "Boston", "Portland", "St. John's",
+        "Sydney", "Perth", "Hobart", "Cairns",
+        "Seattle", "Vancouver", "Aberdeen", "Bergen"
+      ),
+      length(vessel_ids),
+      replace = TRUE
+    ),
     vessel_type = sample(c("Trawler", "Longliner", "Seiner", "Pot/Trap"),
-                         length(vessel_ids), replace = TRUE)
+      length(vessel_ids),
+      replace = TRUE
+    )
   )
 }

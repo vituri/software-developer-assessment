@@ -13,13 +13,11 @@ catch_full <- catch %>%
 
 ui <- fluidPage(
   titlePanel("Fisheries Catch Dashboard"),
-
   sidebarLayout(
     sidebarPanel(
       selectInput("country", "Country:", choices = sort(unique(catch_full$country))),
       selectInput("species", "Species:", choices = NULL)
     ),
-
     mainPanel(
       leafletOutput("map", height = 350),
       br(),
@@ -31,15 +29,15 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-
- observe({
+  observe({
     species <- catch_full %>%
       filter(country == input$country) %>%
-      pull(species) %>% unique() %>% sort()
-    updateSelectInput(session, "species", choices =
-  species, selected = species[1])
-  })
+      pull(species) %>%
+      unique() %>%
+      sort()
 
+    updateSelectInput(session, "species", choices = species, selected = species[1])
+  })
 
   country_data <- reactive({
     catch_full %>% filter(country == input$country)
@@ -56,8 +54,8 @@ server <- function(input, output, session) {
       addTiles() %>%
       addCircleMarkers(
         ~longitude, ~latitude,
-        radius = ~sqrt(catch_kg)/5,
-        popup = ~paste0(
+        radius = ~ sqrt(catch_kg) / 5,
+        popup = ~ paste0(
           "<b>Species:</b> ", species,
           "<br><b>Catch (kg):</b> ", catch_kg,
           "<br><b>Vessel:</b> ", vessel_name,
