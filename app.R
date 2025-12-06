@@ -1,7 +1,9 @@
 library(shiny)
-library(tidyverse)
+library(bslib)
+library(dplyr)
 library(lubridate)
 library(leaflet)
+library(ggplot2)
 
 # Load datasets
 source("dummy_data_generator.R")
@@ -11,22 +13,17 @@ vessels <- generate_vessel_data()
 catch_full <- catch %>%
   left_join(vessels, by = "vessel_id")
 
-ui <- fluidPage(
-  titlePanel("Fisheries Catch Dashboard"),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("country", "Country:", choices = sort(unique(catch_full$country))),
-      selectInput("species", "Species:", choices = NULL)
-    ),
-    mainPanel(
-      leafletOutput("map", height = 350),
-      br(),
-      plotOutput("total_catch_plot"),
-      br(),
-      plotOutput("cpue_plot")
-    )
-  )
+ui <- page_sidebar(
+  title = "Fisheries Catch Dashboard",
+  sidebar = sidebar(
+    selectInput("country", "Country:", choices = sort(unique(catch_full$country))),
+    selectInput("species", "Species:", choices = NULL)
+  ),
+  leafletOutput("map", height = 350),
+  plotOutput("total_catch_plot"),
+  plotOutput("cpue_plot")
 )
+
 
 server <- function(input, output, session) {
   observe({
