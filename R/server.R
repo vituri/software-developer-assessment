@@ -46,8 +46,8 @@ server <- function(input, output, session) {
   mod_map_Server(rc.catch_species = rc.catch_species)
 
   # output$total_catch_plot ----
-  mod_catch_season_Server(input_main = input)
+  mod_catch_season_Server(input_main = input, catch_by_season = catch_by_season)
 
   # output$cpue_plot ----
-  mod_cpue_Server(input_main = input)
+  mod_cpue_Server(input_main = input, cpue = cpue)
 }
