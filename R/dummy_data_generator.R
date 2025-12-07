@@ -185,3 +185,30 @@ generate_vessel_data <- function() {
     )
   )
 }
+
+# pre-calculated data
+generate_catch_full <- function(catch, vessels) {
+  catch |>
+    left_join(vessels, by = "vessel_id")
+}
+
+generate_catch_by_season <- function(catch) {
+  catch_by_season <- catch |>
+    summarize(
+      total_catch = sum(catch_kg),
+      .by = c(country, species, season)
+    ) |>
+    mutate(season = factor(season, levels = names(season_colors))) |>
+    arrange(country, species, season)
+}
+
+generate_cpue <- function(catch_full) {
+  catch_full |>
+    mutate(cpue = catch_kg / crew_size) |>
+    summarize(
+      avg_cpue = mean(cpue), .by = c(country, species, date)
+    ) |>
+    tidyr::complete(country, species, date) |>
+    # save week and year for possible aggregation
+    mutate(year = year(date), week = paste0(year, "-", week(date)))
+}
