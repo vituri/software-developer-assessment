@@ -1,7 +1,3 @@
-# Dummy Data for Fisheries Monitoring Dashboard
-library(dplyr)
-library(lubridate)
-
 #' Generate dummy fisheries data
 #' @return A data frame with fisheries data
 generate_fisheries_data <- function() {
@@ -188,4 +184,35 @@ generate_vessel_data <- function() {
       replace = TRUE
     )
   )
+}
+
+# pre-calculated data
+generate_catch_full <- function(catch, vessels) {
+  catch |>
+    left_join(vessels, by = "vessel_id")
+}
+
+generate_catch_by_season <- function(catch) {
+  catch_by_season <- catch |>
+    summarize(
+      total_catch = sum(catch_kg),
+      .by = c(country, species, season)
+    ) |>
+    mutate(season = factor(season, levels = names(season_colors))) |>
+    arrange(country, species, season)
+}
+
+generate_cpue <- function(catch_full) {
+  catch_full |>
+    mutate(cpue = catch_kg / crew_size) |>
+    summarize(
+      avg_cpue = mean(cpue), .by = c(country, species, date)
+    ) |>
+    tidyr::complete(country, species, date) |>
+    # save week and year for possible aggregation
+    mutate(
+      week = floor_date(date, "1 week"),
+      month = floor_date(date, "1 month"),
+      year = floor_date(date, "1 year")
+    )
 }

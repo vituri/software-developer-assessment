@@ -19,10 +19,14 @@ The app can be accessed in the following link:
 - Avoid filtering the same data twice; reuse reactives.
 - Use R base pipe `|>` instead of `maggritr` pipe `%>%`.
 
-## Organization?
+## Organization
 
-- Use modules and package structure?
-
+- Use package structure
+- Split functions into different files
+- Isolate `generate_*` functions
+- Use modules
+- Use echarts4r for reactive plots
+- Add sidebar in card with aggregation options
 
 # How to use the app
 
