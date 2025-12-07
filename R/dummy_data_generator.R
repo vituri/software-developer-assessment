@@ -1,7 +1,3 @@
-# Dummy Data for Fisheries Monitoring Dashboard
-library(dplyr)
-library(lubridate)
-
 #' Generate dummy fisheries data
 #' @return A data frame with fisheries data
 generate_fisheries_data <- function() {
