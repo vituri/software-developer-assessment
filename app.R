@@ -85,7 +85,7 @@ server <- function(input, output, session) {
   rc.catch_country <- reactive({
     paste("Filtering catch by country...") |> showNotification(duration = 1)
 
-    Sys.sleep(0.5)
+    Sys.sleep(2)
     catch_full |> filter(country == input$country)
   }) |>
     bindCache(input$country)
