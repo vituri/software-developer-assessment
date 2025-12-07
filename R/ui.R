@@ -31,15 +31,6 @@ theme <- bs_theme(
   "card-border-radius" = "0.5rem"
 )
 
-
-card2 <- function(title = "", ...) {
-  card(
-    card_header(title, class = "bg-info"),
-    ...,
-    full_screen = TRUE
-  )
-}
-
 ui <- function() {
   # ui ----
   ui <- page_sidebar(
