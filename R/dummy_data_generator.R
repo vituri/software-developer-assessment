@@ -210,5 +210,9 @@ generate_cpue <- function(catch_full) {
     ) |>
     tidyr::complete(country, species, date) |>
     # save week and year for possible aggregation
-    mutate(year = year(date), week = paste0(year, "-", week(date)))
+    mutate(
+      week = floor_date(date, "1 week"),
+      month = floor_date(date, "1 month"),
+      year = floor_date(date, "1 year")
+    )
 }
