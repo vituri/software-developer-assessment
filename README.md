@@ -1,3 +1,29 @@
+# Enhancements
+
+## Visual
+- Use `bslib` instead of plain `shiny`.
+- Create a `bs_theme()` inspired by [Blue Ventures website](https://blueventures.org/).
+- Use cards with full screen option and change the layout.
+
+## Performance
+
+- Add cache to all filters and plots.
+- Add a waiting of 2 seconds for each country filtering and a corresponding notification, so we can see when the calculation is computed or used by the cache.
+- Add `useBusyIndicators()` so the user has a visual clue of the computation.
+- Avoid filtering the same data twice; reuse reactives.
+- Use R base pipe `|>` instead of `maggritr` pipe `%>%`.
+
+## Organization?
+
+- Use modules and package structure?
+
+
+# How to use the app
+
+...
+
+# Previous README
+
 ## Dummy Datasets
 
 ### Dataset 1: Fisheries Catch Data
