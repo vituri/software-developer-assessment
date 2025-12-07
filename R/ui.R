@@ -47,7 +47,7 @@ ui <- function() {
     title = "Fisheries Catch Dashboard",
     theme = theme,
     sidebar = sidebar(
-      selectInput("country", "Country:", choices = sort(unique(catch_full$country))),
+      selectInput("country", "Country:", choices = NULL),
       selectInput("species", "Species:", choices = NULL)
     ),
     layout_columns(
