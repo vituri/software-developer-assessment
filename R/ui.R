@@ -32,8 +32,7 @@ theme <- bs_theme(
 )
 
 ui <- function() {
-  # ui ----
-  ui <- page_sidebar(
+  page_sidebar(
     useBusyIndicators(),
     title = "Fisheries Catch Dashboard",
     theme = theme,
@@ -43,20 +42,9 @@ ui <- function() {
     ),
     layout_columns(
       col_widths = c(8, 4),
-      card2(
-        "Map",
-        leafletOutput("map")
-      ),
-      card2(
-        "Catch by season",
-        plotOutput("total_catch_plot")
-      )
+      mod_map_UI(),
+      mod_catch_season_UI()
     ),
-    card2(
-      "Total catch",
-      plotOutput("cpue_plot")
-    )
+    mod_cpue_UI()
   )
-
-  ui
 }
