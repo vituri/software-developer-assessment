@@ -6,20 +6,10 @@ server <- function(input, output, session) {
     sort()
   vessels <- generate_vessel_data()
 
-  catch_full <- catch |>
-    left_join(vessels, by = "vessel_id")
+  catch_full <- generate_catch_full(catch, vessels)
 
-  catch_by_season <- catch |>
-    summarize(total_catch = sum(catch_kg), .by = c(country, species, season))
-
-  cpue <- catch_full |>
-    mutate(cpue = catch_kg / crew_size) |>
-    summarize(
-      avg_cpue = mean(cpue), .by = c(country, species, date)
-    ) |>
-    tidyr::complete(country, species, date) |>
-    # save week and year for possible aggregation
-    mutate(year = year(date), week = paste0(year, "-", week(date)))
+  catch_by_season <- generate_catch_by_season(catch)
+  cpue <- generate_cpue(catch_full)
 
   # update country filter ----
   observe({
@@ -52,53 +42,12 @@ server <- function(input, output, session) {
   }) |>
     bindCache(input$country, input$species)
 
-  # output$map ----
-  output$map <- renderLeaflet({
-    dat <- rc.catch_species()
-
-    leaflet(dat) |>
-      addTiles() |>
-      addCircleMarkers(
-        ~longitude, ~latitude,
-        radius = ~ sqrt(catch_kg) / 5,
-        popup = ~ paste0(
-          "<b>Species:</b> ", species,
-          "<br><b>Catch (kg):</b> ", catch_kg,
-          "<br><b>Vessel:</b> ", vessel_name,
-          "<br><b>Port:</b> ", port
-        ),
-        fillOpacity = 0.7
-      )
-  })
+  # map module ----
+  mod_map_Server(rc.catch_species = rc.catch_species)
 
   # output$total_catch_plot ----
-  output$total_catch_plot <- renderPlot({
-    catch_by_season |>
-      filter(country %in% input$country, species %in% input$species) |>
-      ggplot(aes(x = season, y = total_catch, fill = season)) +
-      geom_col() +
-      labs(
-        title = paste("Total Catch per Season -", input$country),
-        x = "Season",
-        y = "Catch (kg)"
-      ) +
-      theme_minimal()
-  }) |>
-    bindCache(input$country, input$species)
+  mod_catch_season_Server(input_main = input)
 
   # output$cpue_plot ----
-  output$cpue_plot <- renderPlot({
-    cpue |>
-      filter(country %in% input$country, species %in% input$species) |>
-      ggplot(aes(x = date, y = avg_cpue)) +
-      geom_line() +
-      geom_point() +
-      labs(
-        title = paste("Catch per Unit Effort (CPUE) -", input$species),
-        x = "Date",
-        y = "CPUE (kg per crew member)"
-      ) +
-      theme_minimal()
-  }) |>
-    bindCache(input$country, input$species)
+  mod_cpue_Server(input_main = input)
 }
