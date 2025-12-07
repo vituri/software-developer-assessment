@@ -2,6 +2,15 @@ The app can be accessed in the following link:
 
 [Fisheries catch dashboard](https://gvituri.shinyapps.io/fisheries-catch-dashboard/)
 
+Installing:
+
+```r
+# install.packages("devtools")
+devtools::install_github("vituri/software-developer-assessment@develop")
+library(fisheriesdashboard)
+run_app()
+```
+
 # Enhancements
 
 ## Visual
