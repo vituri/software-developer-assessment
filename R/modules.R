@@ -12,6 +12,7 @@ mod_map_Server <- function(id = "map", rc.catch_species) {
     function(input, output, session) {
       output$map <- renderLeaflet({
         dat <- rc.catch_species()
+        req(dat)
 
         leaflet(dat) |>
           addTiles() |>
@@ -39,9 +40,7 @@ mod_catch_season_UI <- function(id = "season") {
   )
 }
 
-mod_catch_season_Server <- function(id = "season", input_main) {
-  catch_by_season <- generate_catch_by_season(catch)
-
+mod_catch_season_Server <- function(id = "season", input_main, catch_by_season) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -105,16 +104,27 @@ mod_cpue_UI <- function(id = "cpue") {
   )
 }
 
-mod_cpue_Server <- function(id = "cpue", input_main) {
+mod_cpue_Server <- function(id = "cpue", input_main, cpue) {
   moduleServer(
     id,
     function(input, output, session) {
       output$cpue_plot <- renderEcharts4r({
+        req(input_main$species)
+
         dat <- cpue |>
           filter(
             country %in% input_main$country, species %in% input_main$species
           ) |>
           arrange(date)
+
+        shiny::validate(
+          need(
+            nrow(dat) > 0, "No data available."
+          ),
+          need(
+            any(!is.na(dat$avg_cpue)), "No vessel has crew size registered."
+          )
+        )
 
         if (!input$date_aggregation %in% "day") {
           date_col <- input$date_aggregation
@@ -124,6 +134,7 @@ mod_cpue_Server <- function(id = "cpue", input_main) {
         } else {
           date_col <- "date"
         }
+
 
         dat |>
           e_charts_(date_col) |>
