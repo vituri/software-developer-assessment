@@ -5,13 +5,26 @@ library(lubridate)
 library(leaflet)
 library(ggplot2)
 
-# Load datasets
+# Load datasets ----
 source("dummy_data_generator.R")
 catch <- generate_fisheries_data()
 vessels <- generate_vessel_data()
 
-catch_full <- catch %>%
+catch_full <- catch |>
   left_join(vessels, by = "vessel_id")
+
+catch_by_season <- catch |>
+  summarize(total_catch = sum(catch_kg), .by = c(country, species, season))
+
+cpue <- catch_full |>
+  mutate(cpue = catch_kg / crew_size) |>
+  summarize(
+    avg_cpue = mean(cpue), .by = c(country, species, date)
+  ) |>
+  tidyr::complete(country, species, date) |>
+  # save week and year for possible aggregation
+  mutate(year = year(date), week = paste0(year, "-", week(date)))
+
 
 card2 <- function(title = "", ...) {
   card(
@@ -57,6 +70,7 @@ theme <- bs_theme(
 
 # ui ----
 ui <- page_sidebar(
+  useBusyIndicators(),
   title = "Fisheries Catch Dashboard",
   theme = theme,
   sidebar = sidebar(
@@ -82,29 +96,33 @@ ui <- page_sidebar(
 
 # server ----
 server <- function(input, output, session) {
+  rc.catch_country <- reactive({
+    paste("Filtering catch by country...") |> showNotification(duration = 1)
+
+    Sys.sleep(2)
+    catch_full |> filter(country == input$country)
+  }) |>
+    bindCache(input$country)
+
   observe({
-    species <- catch_full %>%
-      filter(country == input$country) %>%
-      pull(species) %>%
-      unique() %>%
+    species <- rc.catch_country()$species |>
+      unique() |>
       sort()
 
     updateSelectInput(session, "species", choices = species, selected = species[1])
   })
 
-  country_data <- reactive({
-    catch_full %>% filter(country == input$country)
-  })
-
-  filtered_data <- reactive({
-    country_data() %>% filter(species == input$species)
-  })
+  rc.catch_species <- reactive({
+    rc.catch_country() |>
+      filter(species == input$species)
+  }) |>
+    bindCache(input$country, input$species)
 
   output$map <- renderLeaflet({
-    dat <- filtered_data()
+    dat <- rc.catch_species()
 
-    leaflet(dat) %>%
-      addTiles() %>%
+    leaflet(dat) |>
+      addTiles() |>
       addCircleMarkers(
         ~longitude, ~latitude,
         radius = ~ sqrt(catch_kg) / 5,
@@ -119,9 +137,8 @@ server <- function(input, output, session) {
   })
 
   output$total_catch_plot <- renderPlot({
-    filtered_data() %>%
-      group_by(season) %>%
-      summarize(total_catch = sum(catch_kg), .groups = "drop") %>%
+    catch_by_season |>
+      filter(country %in% input$country, species %in% input$species) |>
       ggplot(aes(x = season, y = total_catch, fill = season)) +
       geom_col() +
       labs(
@@ -130,13 +147,12 @@ server <- function(input, output, session) {
         y = "Catch (kg)"
       ) +
       theme_minimal()
-  })
+  }) |>
+    bindCache(input$country, input$species)
 
   output$cpue_plot <- renderPlot({
-    filtered_data() %>%
-      mutate(cpue = catch_kg / crew_size) %>%
-      group_by(date) %>%
-      summarize(avg_cpue = mean(cpue), .groups = "drop") %>%
+    cpue |>
+      filter(country %in% input$country, species %in% input$species) |>
       ggplot(aes(x = date, y = avg_cpue)) +
       geom_line() +
       geom_point() +
@@ -146,7 +162,8 @@ server <- function(input, output, session) {
         y = "CPUE (kg per crew member)"
       ) +
       theme_minimal()
-  })
+  }) |>
+    bindCache(input$country, input$species)
 }
 
 shinyApp(ui, server)
