@@ -57,6 +57,7 @@ theme <- bs_theme(
 
 # ui ----
 ui <- page_sidebar(
+  useBusyIndicators(),
   title = "Fisheries Catch Dashboard",
   theme = theme,
   sidebar = sidebar(
