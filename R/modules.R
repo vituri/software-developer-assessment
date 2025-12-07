@@ -93,7 +93,17 @@ mod_cpue_UI <- function(id = "cpue") {
   ns <- NS(id)
   card2(
     "Catch per Unit Effort (CPUE)",
-    echarts4rOutput(ns("cpue_plot"), height = "350px")
+    layout_sidebar(
+      sidebar = sidebar(
+        selectInput(
+          inputId = ns("date_aggregation"),
+          label = "Aggregation",
+          choices = c("day", "week", "month", "year"),
+          selected = "day"
+        )
+      ),
+      echarts4rOutput(ns("cpue_plot"), height = "350px")
+    )
   )
 }
 
@@ -106,8 +116,17 @@ mod_cpue_Server <- function(id = "cpue", input_main) {
           filter(country %in% input_main$country, species %in% input_main$species) |>
           arrange(date)
 
+        if (!input$date_aggregation %in% "day") {
+          date_col <- input$date_aggregation
+          dat <-
+            dat |>
+            summarise(avg_cpue = mean(avg_cpue, na.rm = TRUE), .by = date_col)
+        } else {
+          date_col <- "date"
+        }
+
         dat |>
-          e_charts(date) |>
+          e_charts_(date_col) |>
           e_bar(
             avg_cpue,
             name = "CPUE",
@@ -139,11 +158,11 @@ mod_cpue_Server <- function(id = "cpue", input_main) {
             nameGap = 50
           ) |>
           e_grid(left = "12%", right = "5%", bottom = "15%", top = "10%") |>
-          e_datazoom(type = "inside", xAxisIndex = 0) |>
+          e_datazoom(xAxisIndex = 0, type = "inside") |>
           e_animation(duration = 1500) |>
           e_legend(show = FALSE)
       }) |>
-        bindCache(input_main$country, input_main$species)
+        bindCache(input_main$country, input_main$species, input$date_aggregation)
     }
   )
 }
