@@ -1,9 +1,15 @@
+The app can be accessed in the following link:
+
+[Fisheries catch dashboard](https://gvituri.shinyapps.io/fisheries-catch-dashboard/)
+
 # Enhancements
 
 ## Visual
+
 - Use `bslib` instead of plain `shiny`.
 - Create a `bs_theme()` inspired by [Blue Ventures website](https://blueventures.org/).
-- Use cards with full screen option and change the layout.
+- Change in layout so the map has more space.
+- Use cards with full screen option.
 
 ## Performance
 
