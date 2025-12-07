@@ -14,5 +14,7 @@ Depends: shiny,
   dplyr,
   lubridate,
   leaflet,
-  echarts4r,
-  htmlwidgets
+  echarts4r
+Imports:
+  tidyr,
+  glue

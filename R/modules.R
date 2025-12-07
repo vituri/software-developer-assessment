@@ -52,8 +52,6 @@ mod_catch_season_Server <- function(id = "season", input_main) {
           filter(country %in% input_main$country, species %in% input_main$species) |>
           mutate(color = season_colors[season])
 
-        # browser()
-
         df |>
           e_charts(season) |>
           e_bar(total_catch, name = "Catch (kg)") |>
@@ -113,7 +111,9 @@ mod_cpue_Server <- function(id = "cpue", input_main) {
     function(input, output, session) {
       output$cpue_plot <- renderEcharts4r({
         dat <- cpue |>
-          filter(country %in% input_main$country, species %in% input_main$species) |>
+          filter(
+            country %in% input_main$country, species %in% input_main$species
+          ) |>
           arrange(date)
 
         if (!input$date_aggregation %in% "day") {
