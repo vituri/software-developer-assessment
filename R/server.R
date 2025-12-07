@@ -1,6 +1,9 @@
 server <- function(input, output, session) {
   # Load datasets ----
   catch <- generate_fisheries_data()
+  countries <- catch$country |>
+    unique() |>
+    sort()
   vessels <- generate_vessel_data()
 
   catch_full <- catch |>
@@ -18,7 +21,14 @@ server <- function(input, output, session) {
     # save week and year for possible aggregation
     mutate(year = year(date), week = paste0(year, "-", week(date)))
 
+  # update country filter ----
+  observe({
+    updateSelectInput(session = session, inputId = "country", choices = countries, selected = countries[1])
+  })
+
+  # filter catch by country ----
   rc.catch_country <- reactive({
+    req(input$country)
     paste("Filtering catch by country...") |> showNotification(duration = 1)
 
     Sys.sleep(2)
@@ -26,6 +36,7 @@ server <- function(input, output, session) {
   }) |>
     bindCache(input$country)
 
+  # update species filter ----
   observe({
     species <- rc.catch_country()$species |>
       unique() |>
@@ -34,12 +45,14 @@ server <- function(input, output, session) {
     updateSelectInput(session, "species", choices = species, selected = species[1])
   })
 
+  # filter catch by species ----
   rc.catch_species <- reactive({
     rc.catch_country() |>
       filter(species == input$species)
   }) |>
     bindCache(input$country, input$species)
 
+  # output$map ----
   output$map <- renderLeaflet({
     dat <- rc.catch_species()
 
@@ -58,6 +71,7 @@ server <- function(input, output, session) {
       )
   })
 
+  # output$total_catch_plot ----
   output$total_catch_plot <- renderPlot({
     catch_by_season |>
       filter(country %in% input$country, species %in% input$species) |>
@@ -72,6 +86,7 @@ server <- function(input, output, session) {
   }) |>
     bindCache(input$country, input$species)
 
+  # output$cpue_plot ----
   output$cpue_plot <- renderPlot({
     cpue |>
       filter(country %in% input$country, species %in% input$species) |>
