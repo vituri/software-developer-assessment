@@ -5,13 +5,26 @@ library(lubridate)
 library(leaflet)
 library(ggplot2)
 
-# Load datasets
+# Load datasets ----
 source("dummy_data_generator.R")
 catch <- generate_fisheries_data()
 vessels <- generate_vessel_data()
 
 catch_full <- catch |>
   left_join(vessels, by = "vessel_id")
+
+catch_by_season <- catch |>
+  summarize(total_catch = sum(catch_kg), .by = c(country, species, season))
+
+cpue <- catch_full |>
+  mutate(cpue = catch_kg / crew_size) |>
+  summarize(
+    avg_cpue = mean(cpue), .by = c(country, species, date)
+  ) |>
+  tidyr::complete(country, species, date) |>
+  # save week and year for possible aggregation
+  mutate(year = year(date), week = paste0(year, "-", week(date)))
+
 
 card2 <- function(title = "", ...) {
   card(
@@ -124,9 +137,8 @@ server <- function(input, output, session) {
   })
 
   output$total_catch_plot <- renderPlot({
-    rc.catch_species() |>
-      group_by(season) |>
-      summarize(total_catch = sum(catch_kg), .groups = "drop") |>
+    catch_by_season |>
+      filter(country %in% input$country, species %in% input$species) |>
       ggplot(aes(x = season, y = total_catch, fill = season)) +
       geom_col() +
       labs(
@@ -139,10 +151,8 @@ server <- function(input, output, session) {
     bindCache(input$country, input$species)
 
   output$cpue_plot <- renderPlot({
-    rc.catch_species() |>
-      mutate(cpue = catch_kg / crew_size) |>
-      group_by(date) |>
-      summarize(avg_cpue = mean(cpue), .groups = "drop") |>
+    cpue |>
+      filter(country %in% input$country, species %in% input$species) |>
       ggplot(aes(x = date, y = avg_cpue)) +
       geom_line() +
       geom_point() +
