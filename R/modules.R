@@ -15,7 +15,7 @@ mod_map_Server <- function(id = "map", rc.catch_species) {
         req(dat)
 
         leaflet(dat) |>
-          addTiles() |>
+          addProviderTiles("Esri.WorldStreetMap") |>
           addCircleMarkers(
             ~longitude, ~latitude,
             radius = ~ sqrt(catch_kg) / 5,
