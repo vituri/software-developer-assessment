@@ -19,7 +19,7 @@ server <- function(input, output, session) {
   # filter catch by country ----
   rc.catch_country <- reactive({
     req(input$country)
-    paste("Filtering catch by country...") |> showNotification(duration = 1)
+    glue::glue("Filtering catch in {input$country}...") |> showNotification(duration = 1)
 
     Sys.sleep(2)
     catch_full |> filter(country == input$country)
