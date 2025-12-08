@@ -1,9 +1,3 @@
-# devtools::install_github("vituri/software-developer-assessment")
+# devtools::install_github("vituri/software-developer-assessment@develop")
 
-options(repos = c(CRAN = "https://cran.rstudio.com/"))
-
-rsconnect::deployApp(
-  appDir = "deploy/",
-  appSourceDoc = "deploy/app.R",
-  forceUpdate = TRUE
-)
+rsconnect::deployApp(appDir = "deploy/", appName = "fisheries-dashboard")
