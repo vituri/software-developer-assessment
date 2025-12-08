@@ -23,23 +23,31 @@ run_app()
 ## Performance
 
 - Add cache to all filters and plots.
-- Add a waiting of 2 seconds for each country filtering and a corresponding notification, so we can see when the calculation is computed or used by the cache.
+- Add a waiting of 2 seconds for each country filtering and a corresponding notification, so we can see when the calculation is computed or just cached.
 - Add `useBusyIndicators()` so the user has a visual clue of the computation.
 - Avoid filtering the same data twice; reuse reactives.
-- Use R base pipe `|>` instead of `maggritr` pipe `%>%`.
+- Use R base pipe `|>` instead of `magrittr` pipe `%>%`.
 
 ## Organization
 
-- Use package structure
-- Split functions into different files
-- Isolate `generate_*` functions
-- Use modules
-- Use echarts4r for reactive plots
-- Add sidebar in card with aggregation options
+- Use package structure.
+- Split functions into different files.
+- Isolate `generate_*` functions.
+- Use modules for each card with plots/maps.
+- Use `echarts4r` instead of `ggplot2` for interactive plots.
+- Add sidebar in card with aggregation options for date.
 
 # How to use the app
 
-...
+The dashboard explored simulated fisheries data around the world.
+
+The main features are:
+
+- A general filter on the left sidebar, which control the country and species.
+- An interactive map with each catch.
+- An interactive plot with the amount of catch per season.
+- An interactive plot with the UCPE for each amount of time (day, week, month or year).
+
 
 # Previous README
 
