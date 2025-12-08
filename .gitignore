@@ -3,4 +3,4 @@
 .RData
 .Ruserdata
 software-developer-assessment.Rproj
-/rsconnect
+deploy/rsconnect
