@@ -19,6 +19,7 @@ run_app()
 - Create a `bs_theme()` inspired by [Blue Ventures website](https://blueventures.org/).
 - Change in layout so the map has more space.
 - Use cards with full screen option.
+- Use `echarts4r` instead of `ggplot2` for interactive plots.
 
 ## Performance
 
@@ -34,7 +35,6 @@ run_app()
 - Split functions into different files.
 - Isolate `generate_*` functions.
 - Use modules for each card with plots/maps.
-- Use `echarts4r` instead of `ggplot2` for interactive plots.
 - Add sidebar in card with aggregation options for date.
 
 # How to use the app
