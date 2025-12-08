@@ -1,6 +1,6 @@
 The app can be accessed in the following link:
 
-[Fisheries catch dashboard](https://gvituri.shinyapps.io/fisheries-catch-dashboard/)
+[Fisheries catch dashboard](https://gvituri.shinyapps.io/fisheries-dashboard/)
 
 Installing:
 
