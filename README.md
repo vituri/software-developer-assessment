@@ -11,35 +11,62 @@ library(fisheriesdashboard)
 run_app()
 ```
 
-# Enhancements
+Requisites:
+- R version >= 4.2.
+- `devtools` package to install via `devtools::install_github`.
 
-## Visual
+# Chosen Enhancements
 
-- Use `bslib` instead of plain `shiny`.
-- Create a `bs_theme()` inspired by [Blue Ventures website](https://blueventures.org/).
-- Change in layout so the map has more space.
-- Use cards with full screen option.
-- Use `echarts4r` instead of `ggplot2` for interactive plots.
+This project implements **3 enhancements** from the provided task list:
 
-## Performance
+| # | Enhancement Option | Implementation |
+|---|-------------------|----------------|
+| **2** | Improve performance | Caching with `bindCache()`, reactive reuse, `useBusyIndicators()` |
+| **5** | Refactor with modules/code organization | Shiny modules for each card, R package structure, split files |
+| **8** | Additional creative improvement of your choice | Change the visuals: custom `bs_theme()` inspired by the [Blue Ventures website](https://blueventures.org/) for brand consistency, `echarts4r` for interactive plots, `bslib` cards with fullscreen, new map tiles |
 
-- Add cache to all filters and plots.
-- Add a waiting of 2 seconds for each country filtering and a corresponding notification, so we can see when the calculation is computed or just cached.
-- Add `useBusyIndicators()` so the user has a visual clue of the computation.
-- Avoid filtering the same data twice; reuse reactives.
-- Use R base pipe `|>` instead of `magrittr` pipe `%>%`.
+---
 
-## Organization
+# Enhancements Details
 
-- Use package structure.
-- Split functions into different files.
-- Isolate `generate_*` functions.
-- Use modules for each card with plots/maps.
-- Add sidebar in card with aggregation options for date.
+## Performance (Option #2)
+
+- **Caching**: Added `bindCache()` to all filters and plots using sidebar filters as cache keys. This avoids recomputation when the user switches back to previously selected filters.
+- **Reactive reuse**: Avoid filtering the same data twice by reusing reactive expressions.
+- **Busy indicators**: Added `useBusyIndicators()` so the user has visual feedback during computation.
+- **Demo delay**: Added a 2-second artificial delay for country filtering with a notification, so the caching effect is visible during the demo.
+- **Base pipe**: Use R base pipe `|>` instead of `magrittr` pipe `%>%` for slightly better performance and fewer dependencies.
+
+## Modules & Code Organization (Option #5)
+
+- **Package structure**: The app is now an R package, making it easy for anyone to install and run with just 3 lines of code.
+- **Shiny modules**: Each card (map, seasonal plot, CPUE plot) is a separate module with its own namespace.
+- **File organization**: Functions are split into logical files (`ui.R`, `server.R`, `modules.R`, `components.R`, `utils.R`, `dummy_data_generator.R`).
+
+## Visual / Creative (Option #8)
+
+- **Custom theme**: Created a `bs_theme()` with colors inspired by the Blue Ventures website for brand consistency.
+- **Modern UI**: Used `bslib` instead of plain `shiny` for a cleaner, more modern interface.
+- **`echarts4r`**: Replaced `ggplot2` with `echarts4r` for interactive, responsive plots with built-in tooltips, animations and zoom.
+- **`bslib` cards**: Each visualization is wrapped in a `bslib` card with a fullscreen option for better data exploration.
+- **Flexible layout**: The map has more horizontal space, and the sidebar provides aggregation options (day/week/month/year) for the CPUE plot.
+
+---
+
+# Trade-offs and Assumptions
+
+| Decision | Trade-off | Rationale |
+|----------|-----------|-----------|
+| 2-second artificial delay | Slower UX in demo | Makes caching effect visible for interview demonstration; would be removed in production |
+| `echarts4r` over `ggplot2` | Less customization for static exports | Better interactivity; tooltips and zoom out-of-the-box |
+| Caching over async operations | Memory usage increases with cache size | Simpler implementation; suitable for dataset size (1200 records); async would add complexity |
+| Package structure | More setup overhead | Much easier for end users to install and run; better for code organization and testing |
+
+---
 
 # How to use the app
 
-The dashboard explored simulated fisheries data around the world.
+The dashboard explores simulated fisheries data around the world.
 
 The main features are:
 
