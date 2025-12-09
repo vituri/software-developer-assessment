@@ -1,0 +1,19 @@
+Package: fisheriesdashboard
+Title: Fisheries Catch Dashboard
+Version: 1.0.0
+Authors@R: 
+    person("Guilherme", "Vituri", , "viturivituri@gmail.com", role = c("aut", "cre"))
+Description: Fisheries Catch Dashboard.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: shiny,
+  bslib,
+  dplyr,
+  lubridate,
+  leaflet,
+  echarts4r
+Imports:
+  tidyr,
+  glue

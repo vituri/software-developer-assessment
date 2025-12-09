@@ -1,7 +1,3 @@
-# Dummy Data for Fisheries Monitoring Dashboard
-library(dplyr)
-library(lubridate)
-
 #' Generate dummy fisheries data
 #' @return A data frame with fisheries data
 generate_fisheries_data <- function() {
@@ -86,12 +82,16 @@ generate_fisheries_data <- function() {
 
   # Define species with their typical catch weights and preferred regions
   species_info <- data.frame(
-    species = c("Tuna", "Salmon", "Cod", "Haddock", "Mackerel",
-                "Barramundi", "Snapper", "Prawns", "Rock Lobster", "King George Whiting"),
+    species = c(
+      "Tuna", "Salmon", "Cod", "Haddock", "Mackerel",
+      "Barramundi", "Snapper", "Prawns", "Rock Lobster", "King George Whiting"
+    ),
     avg_catch = c(150, 80, 120, 60, 40, 90, 70, 50, 45, 55),
     sd_catch = c(50, 30, 40, 20, 15, 35, 25, 20, 18, 22),
-    preferred_region = c("North Atlantic", "Pacific Northwest", "North Sea", "North Atlantic", "North Sea",
-                         "Australia", "Australia", "Australia", "Australia", "Australia"),
+    preferred_region = c(
+      "North Atlantic", "Pacific Northwest", "North Sea", "North Atlantic", "North Sea",
+      "Australia", "Australia", "Australia", "Australia", "Australia"
+    ),
     stringsAsFactors = FALSE
   )
 
@@ -102,19 +102,19 @@ generate_fisheries_data <- function() {
     date = sample(seq(Sys.Date() - 365, Sys.Date(), by = "day"), n_records, replace = TRUE),
     vessel_id = paste0("V-", sample(1001:1030, n_records, replace = TRUE)),
     zone = sample(names(zones), n_records, replace = TRUE, prob = c(rep(0.08, 3), rep(0.12, 4), rep(0.08, 2), rep(0.06, 2)))
-  ) %>%
-    rowwise() %>%
+  ) |>
+    rowwise() |>
     mutate(
       region = zones[[zone]]$region,
       country = zones[[zone]]$country,
       latitude = runif(1, zones[[zone]]$lat_range[1], zones[[zone]]$lat_range[2]),
       longitude = runif(1, zones[[zone]]$lon_range[1], zones[[zone]]$lon_range[2])
-    ) %>%
+    ) |>
     ungroup()
 
   # Assign species based on region preferences
-  data <- data %>%
-    rowwise() %>%
+  data <- data |>
+    rowwise() |>
     mutate(
       species = {
         # Get species that prefer this region
@@ -131,9 +131,9 @@ generate_fisheries_data <- function() {
           }
         }
       }
-    ) %>%
-    ungroup() %>%
-    left_join(species_info, by = "species") %>%
+    ) |>
+    ungroup() |>
+    left_join(species_info, by = "species") |>
     mutate(
       catch_kg = pmax(10, rnorm(n(), avg_catch, sd_catch)),
       water_temp = case_when(
@@ -149,9 +149,11 @@ generate_fisheries_data <- function() {
         month(date) %in% c(6, 7, 8) ~ "Winter",
         TRUE ~ "Spring"
       )
-    ) %>%
-    select(date, vessel_id, species, catch_kg, latitude, longitude,
-           water_temp, depth_m, region, country, zone, season) %>%
+    ) |>
+    select(
+      date, vessel_id, species, catch_kg, latitude, longitude,
+      water_temp, depth_m, region, country, zone, season
+    ) |>
     arrange(desc(date))
 
   return(data)
@@ -168,11 +170,49 @@ generate_vessel_data <- function() {
     capacity_kg = sample(500:2500, length(vessel_ids), replace = TRUE),
     crew_size = ifelse(runif(length(vessel_ids)) < 0.10, NA, sample(5:18, length(vessel_ids), replace = TRUE)),
     registration_year = sample(2000:2023, length(vessel_ids), replace = TRUE),
-    port = sample(c("Halifax", "Boston", "Portland", "St. John's",
-                    "Sydney", "Perth", "Hobart", "Cairns",
-                    "Seattle", "Vancouver", "Aberdeen", "Bergen"),
-                  length(vessel_ids), replace = TRUE),
+    port = sample(
+      c(
+        "Halifax", "Boston", "Portland", "St. John's",
+        "Sydney", "Perth", "Hobart", "Cairns",
+        "Seattle", "Vancouver", "Aberdeen", "Bergen"
+      ),
+      length(vessel_ids),
+      replace = TRUE
+    ),
     vessel_type = sample(c("Trawler", "Longliner", "Seiner", "Pot/Trap"),
-                         length(vessel_ids), replace = TRUE)
+      length(vessel_ids),
+      replace = TRUE
+    )
   )
+}
+
+# pre-calculated data
+generate_catch_full <- function(catch, vessels) {
+  catch |>
+    left_join(vessels, by = "vessel_id")
+}
+
+generate_catch_by_season <- function(catch) {
+  catch_by_season <- catch |>
+    summarize(
+      total_catch = sum(catch_kg),
+      .by = c(country, species, season)
+    ) |>
+    mutate(season = factor(season, levels = names(season_colors))) |>
+    arrange(country, species, season)
+}
+
+generate_cpue <- function(catch_full) {
+  catch_full |>
+    mutate(cpue = catch_kg / crew_size) |>
+    summarize(
+      avg_cpue = mean(cpue), .by = c(country, species, date)
+    ) |>
+    tidyr::complete(country, species, date) |>
+    # save week and year for possible aggregation
+    mutate(
+      week = floor_date(date, "1 week"),
+      month = floor_date(date, "1 month"),
+      year = floor_date(date, "1 year")
+    )
 }

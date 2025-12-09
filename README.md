@@ -1,3 +1,83 @@
+The app can be accessed in the following link:
+
+[Fisheries catch dashboard](https://gvituri.shinyapps.io/fisheries-dashboard/)
+
+Installing:
+
+```r
+# install.packages("devtools")
+devtools::install_github("vituri/software-developer-assessment@develop")
+library(fisheriesdashboard)
+run_app()
+```
+
+Requisites:
+- R version >= 4.2.
+- `devtools` package to install via `devtools::install_github`.
+
+# Chosen Enhancements
+
+This project implements **3 enhancements** from the provided task list:
+
+| # | Enhancement Option | Implementation |
+|---|-------------------|----------------|
+| **2** | Improve performance | Caching with `bindCache()`, reactive reuse, `useBusyIndicators()` |
+| **5** | Refactor with modules/code organization | Shiny modules for each card, R package structure, split files |
+| **8** | Additional creative improvement of your choice | Change the visuals: custom `bs_theme()` inspired by the [Blue Ventures website](https://blueventures.org/) for brand consistency, `echarts4r` for interactive plots, `bslib` cards with fullscreen, new map tiles |
+
+---
+
+# Enhancements Details
+
+## Performance (Option #2)
+
+- **Caching**: Added `bindCache()` to all filters and plots using sidebar filters as cache keys. This avoids recomputation when the user switches back to previously selected filters.
+- **Reactive reuse**: Avoid filtering the same data twice by reusing reactive expressions.
+- **Busy indicators**: Added `useBusyIndicators()` so the user has visual feedback during computation.
+- **Demo delay**: Added a 2-second artificial delay for country filtering with a notification, so the caching effect is visible during the demo.
+- **Base pipe**: Use R base pipe `|>` instead of `magrittr` pipe `%>%` for slightly better performance and fewer dependencies.
+
+## Modules & Code Organization (Option #5)
+
+- **Package structure**: The app is now an R package, making it easy for anyone to install and run with just 3 lines of code.
+- **Shiny modules**: Each card (map, seasonal plot, CPUE plot) is a separate module with its own namespace.
+- **File organization**: Functions are split into logical files (`ui.R`, `server.R`, `modules.R`, `components.R`, `utils.R`, `dummy_data_generator.R`).
+
+## Visual / Creative (Option #8)
+
+- **Custom theme**: Created a `bs_theme()` with colors inspired by the Blue Ventures website for brand consistency.
+- **Modern UI**: Used `bslib` instead of plain `shiny` for a cleaner, more modern interface.
+- **`echarts4r`**: Replaced `ggplot2` with `echarts4r` for interactive, responsive plots with built-in tooltips, animations and zoom.
+- **`bslib` cards**: Each visualization is wrapped in a `bslib` card with a fullscreen option for better data exploration.
+- **Flexible layout**: The map has more horizontal space, and the sidebar provides aggregation options (day/week/month/year) for the CPUE plot.
+
+---
+
+# Trade-offs and Assumptions
+
+| Decision | Trade-off | Rationale |
+|----------|-----------|-----------|
+| 2-second artificial delay | Slower UX in demo | Makes caching effect visible for interview demonstration; would be removed in production |
+| `echarts4r` over `ggplot2` | Less customization for static exports | Better interactivity; tooltips and zoom out-of-the-box |
+| Caching over async operations | Memory usage increases with cache size | Simpler implementation; suitable for dataset size (1200 records); async would add complexity |
+| Package structure | More setup overhead | Much easier for end users to install and run; better for code organization and testing |
+
+---
+
+# How to use the app
+
+The dashboard explores simulated fisheries data around the world.
+
+The main features are:
+
+- A general filter on the left sidebar, which control the country and species.
+- An interactive map with each catch.
+- An interactive plot with the amount of catch per season.
+- An interactive plot with the UCPE for each amount of time (day, week, month or year).
+
+
+# Previous README
+
 ## Dummy Datasets
 
 ### Dataset 1: Fisheries Catch Data
